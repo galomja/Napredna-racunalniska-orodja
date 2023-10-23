@@ -9,12 +9,15 @@ for b = 1:12
 end
 
 x=linspace(-1,1,1000);
-yy=(@(x)sqrt(1-x.^2));
-plot(koor1(:,1),koor1(:,2),"g.")
+yy=@(x)[sqrt(1-x.^2);-sqrt(1-x.^2)];
+mat_y = yy(x);
+y1=mat_y(1,:);
+y2=mat_y(2,:);
+plot(koor1(:,1),koor1(:,2),"cdiamond")
 hold on
 plot(koor2(:,1),koor2(:,2),"r*")
-plot(x,yy(x),"m.")
-plot(x,-yy(x),"m.")
+plot(x,y1,"b.")
+plot(x,y2,"b.")
 hold off
 
 function [priblizek,napaka] = area_pi(v1,v2)
