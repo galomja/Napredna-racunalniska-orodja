@@ -18,6 +18,10 @@ hold on
 plot(koor2(:,1),koor2(:,2),"r*")
 plot(x,y1,"b.")
 plot(x,y2,"b.")
+legend('Notranje točke','Zunanje točke','Krožnica');
+xlabel('x');
+ylabel('y');
+title('Metoda Monte Carlo');
 hold off
 
 function [priblizek,napaka] = area_pi(v1,v2)
