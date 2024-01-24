@@ -380,9 +380,9 @@ int main() {
 		std::vector<double> T(N_points, 100.0); //pripravimo prazen vektor
 		auto start = std::chrono::high_resolution_clock::now();
 		std::cout << "Resujem sistem enacb..." << std::endl;
-
+		#pragma omp parallel
 		for (int iitt = 1; iitt < 100; iitt++) {
-			#pragma omp parallel for
+		#pragma omp for
 			for (int jj = 0; jj < N_points; jj++) {
 				double d = b[jj];
 				for (int ii = 0; ii < N_points; ii++) {
