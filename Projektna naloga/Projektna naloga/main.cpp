@@ -4,6 +4,8 @@
 #include <vector>
 #include <sstream>
 #include <omp.h>
+#include <chrono>
+#include "json.hpp"
 
 /*Definicija funkcije za preverjanje sosednosti: 
 0...levo
@@ -40,7 +42,8 @@ int soseska(int X_trenutno, int Y_trenutno, int X_sosednje, int Y_sosednje, doub
 }
 
 int main() {
-//pripravimo potrebne spremenljivke za branje datoteke:
+	//zacnemo meriti cas:
+	//pripravimo potrebne spremenljivke za branje datoteke:
 	std::vector<double> X;
 	std::vector<double> Y;
 	std::vector<std::vector<int>> celice;
@@ -238,6 +241,7 @@ int main() {
 		std::vector<int> b(N_points, 0);
 		
 		//za vsako voslisce zapisemo enacbo:
+		std::cout << "" << std::endl;
 		std::cout << "Pisem enacbe..." << std::endl;
 		for(int node_id = 0; node_id < N_points; node_id++) {
 			int tip_robnega_pogoja = 0;
@@ -366,15 +370,19 @@ int main() {
 		std::cout << "Enacbe spisane" << std::endl;
 		std::cout << "Velikost matrike A: " << A.size() << "x" << A[0].size() << std::endl;
 		std::cout << "Velikost vektorja b: " << b.size() << std::endl;
+		std::cout << "" << std::endl;
+
 		
 
 		
 		/*sedaj moramo resiti sistem enacb A.T = b
 		Dolocimo zacetni priblizek: T vseh tock naj bo 100 oC*/
 		std::vector<double> T(N_points, 100.0); //pripravimo prazen vektor
+		auto start = std::chrono::high_resolution_clock::now();
 		std::cout << "Resujem sistem enacb..." << std::endl;
 
 		for (int iitt = 1; iitt < 100; iitt++) {
+			#pragma omp parallel for
 			for (int jj = 0; jj < N_points; jj++) {
 				double d = b[jj];
 				for (int ii = 0; ii < N_points; ii++) {
@@ -386,6 +394,10 @@ int main() {
 			}
 		}
 		std::cout << "Sistem enacb resen" << std::endl;
+		auto finish = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = finish - start;
+		std::cout << "" << std::endl;
+		std::cout << "Porabljen cas za resevanje: " << elapsed.count() << " sekund" << std::endl;
 		std::cout << "" << std::endl;
 		std::cout << "Vrednosti T" << std::endl;
 		for (int i = 0; i < 10; ++i) {
@@ -437,7 +449,18 @@ int main() {
 
 		// Close the file
 		vtkFile.close();
+
+		//Zapis datoteke json za prenos A in b v mathematico
+		nlohmann::json j;
+		j["matrix"] = A;  
+		j["vector"] = b;  
+		std::ofstream file("rezultat2.json");
+		file << j.dump(4); 
+		file.close();
+
+
 		std::cout << "Koncano" << std::endl;
+
 	}
 	else {
 		std::cout << "Unable to open file" << std::endl;
